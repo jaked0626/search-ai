@@ -103,6 +103,16 @@ class Maze
             return;
         }
 
+        /// @brief returns the points possible from a specific action
+        /// @param action 
+        /// @return points
+        int get_point(int action) {
+            int tx = { this->character_.x_ + this->dx[action] };
+            int ty = { this->character_.y_ + this->dy[action] };
+
+            return this->points_[ty][tx];
+        }
+
         /// @brief represents the game state as a string 
         /// @return string representing the state of the game 
         std::string to_string() const 
@@ -162,10 +172,23 @@ int user_action (Maze m)
 
 /// @brief player_ai function that uses the greedy method to solve the game
 /// @param m 
-/// @return a legal action of int type
+/// @return greedy_action
 int greedy_action (Maze m) 
 {
-    return 0;
+    std::vector legal_actions = { m.legal_actions() }; // { 0, 1, 2, 3 }
+    int max_points = { 0 };
+    int greedy_action = { 0 };
+    for (const int action: legal_actions)
+    {
+        int temp_points = { m.get_point(action) };
+        if (temp_points > max_points)
+        {
+            max_points = temp_points;
+            greedy_action = action;
+        }
+    }
+
+    return greedy_action;
 }
 
 
@@ -216,14 +239,14 @@ int absolute_value(int x)
 int main() {
     auto rand_int = std::mt19937(std::time(0));
 
-    Maze m { 2025 };
+    Maze m { 2024 };
 
 
-    std::cout << "------- GAME 1 ---------\n"; 
+    std::cout << "------- GAME 1 (RANDOM) ---------\n"; 
     play_game(m, *random_action);
 
-    std::cout << "------- GAME 2 ---------\n"; 
-    play_game(m, *user_action);
+    std::cout << "------- GAME 2 (GREEDY) ---------\n"; 
+    play_game(m, *greedy_action);
 
     return 0;
 }
