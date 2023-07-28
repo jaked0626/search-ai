@@ -4,6 +4,8 @@
 #include "maze_state.h"
 #include <ctime>
 
+/******************************* GAME ENVIRONMENT *******************************/
+
 struct Coord
 {
     int x_;
@@ -34,8 +36,7 @@ class Maze
         // add default constructor
         Maze() = default;
 
-        /// @brief constructor so that we can control the random generation of 
-        ///        the board. 
+        /// @brief constructor
         /// @param seed 
         Maze(const int seed)
         {
@@ -58,15 +59,15 @@ class Maze
             } 
         }
 
-        /// @brief checks is the game is done 
-        /// @return true if the game is done (reached the final turn)
+        /// @brief checks if the game is done 
+        /// @return true if game is done (reached the final turn)
         bool is_done() const
         {
             return this->turn_ == FINAL_TURN;
         }
 
-        /// @brief returns a vector object of 
-        /// @return actions: a vector of legal actions 
+        /// @brief returns a vector object of legal actions
+        /// @return actions
         std::vector<int> legal_actions() const
         {
             std::vector<int> actions;
@@ -103,7 +104,7 @@ class Maze
         }
 
         /// @brief represents the game state as a string 
-        /// @return a string representing the state of the game 
+        /// @return string representing the state of the game 
         std::string to_string() const 
         {
             std::stringstream ss;
@@ -133,6 +134,7 @@ class Maze
         }
 };
 
+/****************************** GAMEPLAY ******************************/
 
 /// @brief we define an ai that chooses actions randomly per turn
 /// @param m 
@@ -144,12 +146,11 @@ int random_action (Maze m)
 }
 
 
-/// @brief returns a user input action for each turn of the game. 
-/// @param m 
-/// @return a legal action of int type 
+/// @brief returns a user input action for each turn of the game.
+/// @param m
+/// @return a legal action of int type
 int user_action (Maze m)
 {
-    
     std::cout << "Pick one of the following: 0 (right), 1 (left), 2 (down), 3 (up): " << std::endl;
     int action { };
     std::cin >> action;
@@ -157,8 +158,29 @@ int user_action (Maze m)
     return action;
 }
 
+/// TODO: create a player_ai function that uses the greedy method to solve the game
 
-/// @brief simulates game given a player_ai function 
+/// @brief player_ai function that uses the greedy method to solve the game
+/// @param m 
+/// @return a legal action of int type
+int greedy_action (Maze m) 
+{
+    return 0;
+}
+
+
+/// TODO: create a player_ai function that uses the beamsearch method to solve the game 
+
+/// @brief player_ai function that uses the beamsearch method to solve the game 
+/// @param m 
+/// @return a legal action of int type
+int beamsearch_action (Maze m) 
+{
+    return 0;
+}
+
+
+/// @brief simulates game given a player function 
 /// @param m
 /// @param player_ai
 void play_game(Maze m, int (*player_ai)(Maze)) 
@@ -171,6 +193,8 @@ void play_game(Maze m, int (*player_ai)(Maze))
         m.to_string();
     }
 }
+
+/******************************* UTILS *******************************/
 
 /// @brief defining own absolute value function to avoid conflicting std::abs definitions
 /// @param x integer 
@@ -187,6 +211,7 @@ int absolute_value(int x)
     }
 }
 
+/******************************* MAIN *******************************/
 
 int main() {
     auto rand_int = std::mt19937(std::time(0));
