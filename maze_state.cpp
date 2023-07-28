@@ -12,24 +12,24 @@ struct Coord
     Coord(const int y = 0, const int x = 0) : y_(y), x_(x) {}
 };
 
-constexpr const int H { 3 };
-constexpr const int W { 4 };
-constexpr const int FINAL_TURN { 4 };
+constexpr const int H = { 3 };
+constexpr const int W = { 4 };
+constexpr const int FINAL_TURN = { 4 };
 
 class Maze
 {
     private:
         int points_[H][W];
-        int turn_ { 0 };
-        static constexpr const int dx[4] { 1, -1, 0, 0 };
-        static constexpr const int dy[4] { 0, 0, 1, -1 };
+        int turn_ = { 0 };
+        static constexpr const int dx[4] = { 1, -1, 0, 0 };
+        static constexpr const int dy[4] = { 0, 0, 1, -1 };
 
     public:
-        Coord character_ { Coord() };
+        Coord character_ = { Coord() };
 
-        int game_score_ { 0 };
+        int game_score_ = { 0 };
 
-        int seed_ { 0 };
+        int seed_ = { 0 };
 
         // add default constructor
         Maze() = default;
@@ -72,8 +72,8 @@ class Maze
             std::vector<int> actions;
             for (int action = 0; action < 4; action++)
             {
-                int ty = this->character_.y_ + dy[action];
-                int tx = this->character_.x_ + dx[action];
+                int ty = { this->character_.y_ + dy[action] };
+                int tx = { this->character_.x_ + dx[action] };
                 if (ty >= 0 && ty < H && tx >= 0 && tx < W)
                 {
                     actions.push_back(action);
