@@ -4,7 +4,7 @@
 #include "maze_state.h"
 #include <ctime>
 
-/******************************* GAME ENVIRONMENT *******************************/
+/****************************** GAME ENVIRONMENT ******************************/
 
 struct Coord
 {
@@ -36,7 +36,7 @@ class Maze
         // add default constructor
         Maze() = default;
 
-        /// @brief constructor
+        /// @brief manual constructor
         /// @param seed 
         Maze(const int seed)
         {
@@ -168,7 +168,6 @@ int user_action (Maze m)
     return action;
 }
 
-/// TODO: create a player_ai function that uses the greedy method to solve the game
 
 /// @brief player_ai function that uses the greedy method to solve the game
 /// @param m 
