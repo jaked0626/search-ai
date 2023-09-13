@@ -2,7 +2,7 @@
 
 ```bash
 # compile the executable
-g++ -std=c++17 -o maze maze_state.cpp 
+g++ -std=c++17 -o main maze.cpp utils.cpp
 
 # run the main app
 ./main
