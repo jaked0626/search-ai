@@ -32,6 +32,8 @@
 *.out
 *.app
 maze
+main
 
 # vscode 
 .vscode/*
+
