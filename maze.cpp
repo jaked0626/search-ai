@@ -3,6 +3,7 @@
 #include <sstream>
 #include <ctime>
 #include <vector>
+#include <queue>
 #include "utils.h"
 
 /****************************** GAME ENVIRONMENT ******************************/
@@ -20,22 +21,13 @@ struct Coord
 
 class Maze
 {
-    private:
-        const int m_height{};
-        const int m_width = {};
-        const int m_final_turn = {};
-        // use vector for points to allow dynamic construction
-        std::vector<std::vector<int>> m_points;
-        int m_turn = { 0 };
-        static constexpr const int m_dx[4] = { 1, -1, 0, 0 };
-        static constexpr const int m_dy[4] = { 0, 0, 1, -1 };
-
     public:
         Coord m_character{ Coord() };
         int m_game_score{ 0 };
         int m_seed{ 0 };
+        int first_action{ };
         
-        /// @brief default constructor 
+        /// @brief default constructor and copy constructor 
         Maze() = default;
 
         /// @brief manual constructor
@@ -65,8 +57,8 @@ class Maze
                     m_points[y][x] = abs_val(rand_int() % 10); 
                 }
             }
-            // std::cout << m_height << " " << m_width << " " << m_final_turn;
-            print_points();
+            std::cout << "Printing Board\n";
+            std::cout << to_string();
         }
 
         /// @brief checks if the game is done 
@@ -78,7 +70,7 @@ class Maze
 
         /// @brief returns a vector object of legal actions
         /// @return actions
-        std::vector<int> legal_actions() const
+        std::vector<int> get_legal_actions() const
         {
             std::vector<int> actions;
             for (int action = 0; action < 4; action++)
@@ -97,7 +89,7 @@ class Maze
         /// @param action 
         void advance(const int action) 
         {
-            std::vector<int> actions = legal_actions();
+            std::vector<int> actions = get_legal_actions();
             if (std::find(actions.begin(), actions.end(), action) == actions.end()) 
             {
                 std::cout << "You are trying to play an illegal move. Please try again." << std::endl;
@@ -162,32 +154,29 @@ class Maze
             std::cout << ss.str();
             return ss.str();
         }
-    
-        void print_points() 
-        {
-            std::cout << "Printing Point Board\n";
-            for (int i = 0; i < m_points.size(); i++) 
-            {
-                for (int j = 0; j < m_points[i].size(); j++) 
-                {
-                    std::cout << m_points[i][j] << " ";
-                }
-                std::cout << "\n";
-            }
-        }
+
+    private:
+        const int m_height{};
+        const int m_width = {};
+        const int m_final_turn = {};
+        // use vector for points to allow dynamic construction
+        std::vector<std::vector<int>> m_points;
+        int m_turn{ 0 };
+        static constexpr const int m_dx[4] = { 1, -1, 0, 0 };
+        static constexpr const int m_dy[4] = { 0, 0, 1, -1 };
 };
 
 /****************************** GAMEPLAY ******************************/
 
 struct ActionArgs
 {
-    Maze m;
-    int beam_width;
-    int beam_length;
-    ActionArgs(Maze maze = Maze{ }, const int w = 1, const int l = 1) 
+    Maze m{};
+    int beam_width{};
+    int beam_depth{};
+    ActionArgs(Maze maze = Maze{ }, const int w = 1, const int d = 1) 
         : m{ maze }
         , beam_width{ w }
-        , beam_length{ l } 
+        , beam_depth{ d } 
     {
         // no other constructor details 
     }
@@ -198,7 +187,7 @@ struct ActionArgs
 /// @return a legal action of int type 
 int random_action (Maze m)
 {   auto rand_int = std::mt19937(m.m_seed++);
-    std::vector legal_actions = m.legal_actions();
+    std::vector legal_actions = m.get_legal_actions();
     return legal_actions[abs_val(rand_int() % legal_actions.size())];
 }
 
@@ -221,9 +210,9 @@ int user_action (Maze m)
 /// @return greedy_action
 int greedy_action (Maze m) 
 {
-    std::vector legal_actions = { m.legal_actions() }; // { 0, 1, 2, 3 }
-    int max_points = { 0 };
-    int greedy_action = { 0 };
+    std::vector legal_actions = { m.get_legal_actions() }; // { 0, 1, 2, 3 }
+    int max_points{ 0 };
+    int greedy_action{ 0 };
     for (const int action: legal_actions)
     {
         int temp_points = { m.get_point(action) };
@@ -237,11 +226,10 @@ int greedy_action (Maze m)
     return greedy_action;
 }
 
-// bool operator<(CallLog a, CallLog b)
-// {
-//     return a.dur < b.dur;
-// } need this too? return m1.m_game_score < m2.m_game_score; 
-
+bool operator<(Maze a, Maze b)
+{
+    return a.m_game_score < b.m_game_score;
+}
 /// TODO: create a player_ai function that uses the beamsearch method to solve the game 
 
 /// @brief player_ai function that uses the beamsearch method to solve the game 
@@ -249,31 +237,39 @@ int greedy_action (Maze m)
 /// @return a legal action of int type
 int beamsearch_action (ActionArgs args) 
 {
-    // current_beam = priorityqueue for maze 
-    // Maze best_state
-    // Maze: int first_action_map 
-    // current_beam.push(args.m)
-    // for t < args.beam_depth 
-    // {
-        // next_beam = priorityqueue for maze 
-        // for i < beam_width 
-        // {
-            // if current_beam is empty, break
-            // current_state = current_beam.pop(); 
-            // for action in legalactions: 
-            //      next_state = current_state
-            //      next_state.advance(action);
-            //      if t == 0: firstactionmap[next_state] = action; # must find another way to track first action back to maze board state. Perhaps add as a member? 
-            //      next_beam.push(next_state);
-            // 
-        // }
-        // current_beam = next_beam;
-        // best_state = current_beam.top()
-        // if best_state is done, break; 
-    // }
 
-    // return best_state.first_action
-    return 0;
+    std::priority_queue<Maze, std::vector<Maze>> current_beam{};
+    Maze best_state{};
+    current_beam.push(args.m);
+    for (int i; i < args.beam_depth; i++) 
+    {
+        std::priority_queue<Maze, std::vector<Maze>> next_beam{};
+        for (int j; j < args.beam_width; j++)
+        {
+            if (current_beam.empty())
+            {
+                break;
+            }
+            Maze current_state{ current_beam.top() };
+            for (const int action: current_state.get_legal_actions())
+            {
+                Maze next_state{ current_state };
+                next_state.advance(action);
+                if (i == 0) 
+                {
+                    next_state.first_action = action;
+                }
+                next_beam.push(next_state);
+            }
+        }
+        current_beam = next_beam;
+        // best_state = current_beam.top();
+        if (best_state.is_done())
+        {
+            break;
+        }
+    }
+    return best_state.first_action;
 }
 
 
@@ -298,14 +294,14 @@ void play_game(Maze m, int (*player_ai)(Maze))
 int main() {
     auto rand_int = std::mt19937(std::time(0));
 
-    Maze m { 2024 };
+    Maze m{ 2024 };
 
 
-    // std::cout << "------- GAME 1 (RANDOM) ---------\n"; 
-    // play_game(m, *random_action);
+    std::cout << "------- GAME 1 (RANDOM) ---------\n"; 
+    play_game(m, *random_action);
 
-    // std::cout << "------- GAME 2 (GREEDY) ---------\n"; 
-    // play_game(m, *greedy_action);
+    std::cout << "------- GAME 2 (GREEDY) ---------\n"; 
+    play_game(m, *greedy_action);
 
     return 0;
 }
