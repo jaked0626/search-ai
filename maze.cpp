@@ -25,7 +25,7 @@ class Maze
         Coord m_character{ Coord() };
         int m_game_score{ 0 };
         int m_seed{ 0 };
-        int first_action{ };
+        int first_action {};
         
         /// @brief default constructor and copy constructor 
         Maze() = default;
@@ -59,6 +59,28 @@ class Maze
             }
             std::cout << "Printing Board\n";
             std::cout << to_string();
+        }
+
+        // https://www.learncpp.com/cpp-tutorial/overloading-the-assignment-operator/
+
+        // Overloaded copy assignment
+	    Maze& operator= (const Maze& maze)
+        {
+            // self-assignment check
+            if (this == &maze)
+            {
+                return *this;
+            }
+            m_character = maze.m_character;
+            m_game_score = maze.m_game_score;
+            m_seed = maze.m_seed;
+            first_action = maze.first_action;
+            m_height = maze.m_height;
+            m_width = maze.m_width;
+            m_final_turn = maze.m_final_turn;
+            m_points = maze.m_points;
+            m_turn = maze.m_turn;
+
         }
 
         /// @brief checks if the game is done 
@@ -156,9 +178,10 @@ class Maze
         }
 
     private:
-        const int m_height{};
-        const int m_width = {};
-        const int m_final_turn = {};
+        // no longer using const due to need for copy assignment in beam search implementation 
+        int m_height {};
+        int m_width {};
+        int m_final_turn {};
         // use vector for points to allow dynamic construction
         std::vector<std::vector<int>> m_points;
         int m_turn{ 0 };
@@ -170,9 +193,9 @@ class Maze
 
 struct ActionArgs
 {
-    Maze m{};
-    int beam_width{};
-    int beam_depth{};
+    Maze m {};
+    int beam_width {};
+    int beam_depth {};
     ActionArgs(Maze maze = Maze{ }, const int w = 1, const int d = 1) 
         : m{ maze }
         , beam_width{ w }
@@ -210,7 +233,7 @@ int user_action (Maze m)
 /// @return greedy_action
 int greedy_action (Maze m) 
 {
-    std::vector legal_actions = { m.get_legal_actions() }; // { 0, 1, 2, 3 }
+    std::vector legal_actions{ m.get_legal_actions() }; // { 0, 1, 2, 3 }
     int max_points{ 0 };
     int greedy_action{ 0 };
     for (const int action: legal_actions)
@@ -237,9 +260,8 @@ bool operator<(Maze a, Maze b)
 /// @return a legal action of int type
 int beamsearch_action (ActionArgs args) 
 {
-
-    std::priority_queue<Maze, std::vector<Maze>> current_beam{};
-    Maze best_state{};
+    std::priority_queue<Maze, std::vector<Maze>> current_beam {};
+    Maze best_state {};
     current_beam.push(args.m);
     for (int i; i < args.beam_depth; i++) 
     {
@@ -301,6 +323,9 @@ int main() {
     play_game(m, *random_action);
 
     std::cout << "------- GAME 2 (GREEDY) ---------\n"; 
+    play_game(m, *greedy_action);
+
+    std::cout << "------- GAME 3 (BEAM SEARCH) ---------\n"; 
     play_game(m, *greedy_action);
 
     return 0;
