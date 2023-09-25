@@ -81,6 +81,7 @@ class Maze
             m_points = maze.m_points;
             m_turn = maze.m_turn;
 
+            return *this;
         }
 
         /// @brief checks if the game is done 
@@ -193,11 +194,11 @@ class Maze
 
 struct ActionArgs
 {
-    Maze m {};
+    Maze maze {};
     int beam_width {};
     int beam_depth {};
     ActionArgs(Maze maze = Maze{ }, const int w = 1, const int d = 1) 
-        : m{ maze }
+        : maze{ maze }
         , beam_width{ w }
         , beam_depth{ d } 
     {
@@ -206,19 +207,19 @@ struct ActionArgs
 };
 
 /// @brief we define an ai that chooses actions randomly per turn
-/// @param m 
+/// @param args ActionArgs 
 /// @return a legal action of int type 
-int random_action (Maze m)
-{   auto rand_int = std::mt19937(m.m_seed++);
-    std::vector legal_actions = m.get_legal_actions();
+int random_action (ActionArgs args)
+{   auto rand_int = std::mt19937(args.maze.m_seed++);
+    std::vector legal_actions = args.maze.get_legal_actions();
     return legal_actions[abs_val(rand_int() % legal_actions.size())];
 }
 
 
 /// @brief returns a user input action for each turn of the game.
-/// @param m
+/// @param args
 /// @return a legal action of int type
-int user_action (Maze m)
+int user_action (ActionArgs args)
 {
     std::cout << "Pick one of the following: 0 (right), 1 (left), 2 (down), 3 (up): " << std::endl;
     int action = { };
@@ -229,16 +230,16 @@ int user_action (Maze m)
 
 
 /// @brief player_ai function that uses the greedy method to solve the game
-/// @param m 
+/// @param args
 /// @return greedy_action
-int greedy_action (Maze m) 
+int greedy_action (ActionArgs args) 
 {
-    std::vector legal_actions{ m.get_legal_actions() }; // { 0, 1, 2, 3 }
+    std::vector legal_actions{ args.maze.get_legal_actions() }; // { 0, 1, 2, 3 }
     int max_points{ 0 };
     int greedy_action{ 0 };
     for (const int action: legal_actions)
     {
-        int temp_points = { m.get_point(action) };
+        int temp_points = { args.maze.get_point(action) };
         if (temp_points > max_points)
         {
             max_points = temp_points;
@@ -256,13 +257,13 @@ bool operator<(Maze a, Maze b)
 /// TODO: create a player_ai function that uses the beamsearch method to solve the game 
 
 /// @brief player_ai function that uses the beamsearch method to solve the game 
-/// @param m 
+/// @param args
 /// @return a legal action of int type
 int beamsearch_action (ActionArgs args) 
 {
     std::priority_queue<Maze, std::vector<Maze>> current_beam {};
     Maze best_state {};
-    current_beam.push(args.m);
+    current_beam.push(args.maze);
     for (int i; i < args.beam_depth; i++) 
     {
         std::priority_queue<Maze, std::vector<Maze>> next_beam{};
@@ -296,16 +297,16 @@ int beamsearch_action (ActionArgs args)
 
 
 /// @brief simulates game given a player function 
-/// @param m
+/// @param args
 /// @param player_ai
-void play_game(Maze m, int (*player_ai)(Maze)) 
+void play_game(ActionArgs args, int (*player_ai)(ActionArgs)) 
 {
-    m.to_string();
-    while (!m.is_done())
+    args.maze.to_string();
+    while (!args.maze.is_done())
     {
-        int play = player_ai(m);
-        m.advance(play);
-        m.to_string();
+        int play = player_ai(args);
+        args.maze.advance(play);
+        args.maze.to_string();
     }
 }
 
@@ -316,17 +317,18 @@ void play_game(Maze m, int (*player_ai)(Maze))
 int main() {
     auto rand_int = std::mt19937(std::time(0));
 
-    Maze m{ 2024 };
+    Maze maze { 3000 };
 
+    ActionArgs args { maze, 4, 4 };
 
     std::cout << "------- GAME 1 (RANDOM) ---------\n"; 
-    play_game(m, *random_action);
+    play_game(args, *random_action);
 
     std::cout << "------- GAME 2 (GREEDY) ---------\n"; 
-    play_game(m, *greedy_action);
+    play_game(args, *greedy_action);
 
     std::cout << "------- GAME 3 (BEAM SEARCH) ---------\n"; 
-    play_game(m, *greedy_action);
+    play_game(args, *beamsearch_action);
 
     return 0;
 }
