@@ -22,9 +22,9 @@ struct Coord
 class Maze
 {
     public:
-        Coord m_character{ Coord() };
-        int m_game_score{ 0 };
-        int m_seed{ 0 };
+        Coord m_character { Coord() };
+        int m_game_score { 0 };
+        int m_seed { 0 };
         int first_action {};
         
         /// @brief default constructor and copy constructor 
@@ -33,10 +33,10 @@ class Maze
         /// @brief manual constructor
         /// @param seed
         Maze(const int seed, const int height=30, const int width=40, const int final_turn=4) 
-            : m_seed{ seed }
-            , m_height{ height }
-            , m_width{ width }
-            , m_final_turn{ final_turn }
+            : m_seed { seed }
+            , m_height { height }
+            , m_width { width }
+            , m_final_turn { final_turn }
         {
             // randomized starting place of our character 
             auto rand_int = std::mt19937(m_seed);
@@ -264,19 +264,20 @@ int beamsearch_action (ActionArgs args)
     std::priority_queue<Maze, std::vector<Maze>> current_beam {};
     Maze best_state {};
     current_beam.push(args.maze);
-    for (int i; i < args.beam_depth; i++) 
+    for (int i = 0; i < args.beam_depth; ++i) 
     {
-        std::priority_queue<Maze, std::vector<Maze>> next_beam{};
-        for (int j; j < args.beam_width; j++)
+        std::priority_queue<Maze, std::vector<Maze>> next_beam {};
+        for (int j = 0; j < args.beam_width; ++j)
         {
             if (current_beam.empty())
             {
                 break;
             }
             Maze current_state{ current_beam.top() };
+            current_beam.pop();
             for (const int action: current_state.get_legal_actions())
             {
-                Maze next_state{ current_state };
+                Maze next_state { current_state };
                 next_state.advance(action);
                 if (i == 0) 
                 {
@@ -286,7 +287,7 @@ int beamsearch_action (ActionArgs args)
             }
         }
         current_beam = next_beam;
-        // best_state = current_beam.top();
+        best_state = current_beam.top();
         if (best_state.is_done())
         {
             break;
@@ -317,12 +318,12 @@ void play_game(ActionArgs args, int (*player_ai)(ActionArgs))
 int main() {
     auto rand_int = std::mt19937(std::time(0));
 
-    Maze maze { 3000 };
+    Maze maze { 2024, 30, 20, 6 };
 
-    ActionArgs args { maze, 4, 4 };
+    ActionArgs args { maze, 10, 10 };
 
-    std::cout << "------- GAME 1 (RANDOM) ---------\n"; 
-    play_game(args, *random_action);
+    // std::cout << "------- GAME 1 (RANDOM) ---------\n"; 
+    // play_game(args, *random_action);
 
     std::cout << "------- GAME 2 (GREEDY) ---------\n"; 
     play_game(args, *greedy_action);
